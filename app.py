@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, session
-import sqlite3
+from flask import Flask, render_template, request, redirect, session, jsonify
+import psycopg2
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -7,19 +8,17 @@ app.secret_key = "supertajne"
 
 
 def polacz_z_baza():
-    return sqlite3.connect("login_baza.db")
+    return psycopg2.connect(os.environ["DATABASE_URL"])
 
 
+# stworzenie tabel raz, na starcie
 polaczenie_startowe = polacz_z_baza()
-
 polaczenie_startowe.cursor().execute(
-    "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, login TEXT, haslo TEXT)"
+    "CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, login TEXT, haslo TEXT)"
 )
-
 polaczenie_startowe.cursor().execute(
-    "CREATE TABLE IF NOT EXISTS wyniki (id INTEGER PRIMARY KEY, user_id INTEGER, wartosc INTEGER)"
+    "CREATE TABLE IF NOT EXISTS wyniki (id SERIAL PRIMARY KEY, user_id INTEGER, wartosc INTEGER)"
 )
-
 polaczenie_startowe.commit()
 polaczenie_startowe.close()
 
@@ -38,7 +37,7 @@ def login():
         polaczenie = polacz_z_baza()
         cursor = polaczenie.cursor()
 
-        cursor.execute("SELECT id, haslo FROM users WHERE login = ?", (login_wpisany,))
+        cursor.execute("SELECT id, haslo FROM users WHERE login = %s", (login_wpisany,))
         wynik = cursor.fetchone()
         polaczenie.close()
 
@@ -61,7 +60,7 @@ def register():
 
         polaczenie = polacz_z_baza()
         cursor = polaczenie.cursor()
-        cursor.execute("INSERT INTO users (login, haslo) VALUES (?, ?)", (login_wpisany, haslo_hash))
+        cursor.execute("INSERT INTO users (login, haslo) VALUES (%s, %s)", (login_wpisany, haslo_hash))
         polaczenie.commit()
         polaczenie.close()
 
@@ -78,13 +77,15 @@ def gra():
     user_id = session["user_id"]
     polaczenie = polacz_z_baza()
     cursor = polaczenie.cursor()
-    cursor.execute("SELECT wartosc FROM wyniki WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT wartosc FROM wyniki WHERE user_id = %s", (user_id,))
     wynik = cursor.fetchone()
     polaczenie.close()
 
     aktualna_wartosc = wynik[0] if wynik else 0
 
     return render_template("gra.html", wartosc=aktualna_wartosc)
+
+
 @app.route("/zwieksz_wynik")
 def zwieksz_wynik():
     if "user_id" not in session:
@@ -94,24 +95,21 @@ def zwieksz_wynik():
     polaczenie = polacz_z_baza()
     cursor = polaczenie.cursor()
 
-    # TODO 2: sprawdź czy user ma już wpis w tabeli "wyniki"
-    cursor.execute("SELECT wartosc FROM wyniki WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT wartosc FROM wyniki WHERE user_id = %s", (user_id,))
     wynik = cursor.fetchone()
 
     if wynik is None:
-        # TODO 3: brak wpisu - stwórz nowy, z wartoscia = 1
-        cursor.execute("INSERT INTO wyniki (user_id, wartosc) VALUES (?, ?)", (user_id, 1))
+        cursor.execute("INSERT INTO wyniki (user_id, wartosc) VALUES (%s, %s)", (user_id, 1))
         nowa_wartosc = 1
     else:
-        # TODO 4: wpis istnieje - zwiększ wartosc o 1 (UPDATE)
         nowa_wartosc = wynik[0] + 1
-        cursor.execute("UPDATE wyniki SET wartosc = ? WHERE user_id = ?", (nowa_wartosc, user_id))
+        cursor.execute("UPDATE wyniki SET wartosc = %s WHERE user_id = %s", (nowa_wartosc, user_id))
 
     polaczenie.commit()
     polaczenie.close()
 
-    from flask import jsonify
     return jsonify(wartosc=nowa_wartosc)
+
 
 @app.route("/reset_wynik")
 def reset_wynik():
@@ -122,13 +120,13 @@ def reset_wynik():
     polaczenie = polacz_z_baza()
     cursor = polaczenie.cursor()
 
-    cursor.execute("UPDATE wyniki SET wartosc = ? WHERE user_id = ?", (0, user_id))
+    cursor.execute("UPDATE wyniki SET wartosc = %s WHERE user_id = %s", (0, user_id))
 
     polaczenie.commit()
     polaczenie.close()
 
-    from flask import jsonify
     return jsonify(wartosc=0)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
