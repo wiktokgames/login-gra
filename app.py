@@ -9,7 +9,6 @@ app.secret_key = "supertajne"
 
 def polacz_z_baza():
     return psycopg2.connect(os.environ["DATABASE_URL"])
-
  
 # stworzenie tabel raz, na starcie
 polaczenie_startowe = polacz_z_baza()
