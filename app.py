@@ -24,7 +24,13 @@ polaczenie_startowe.close()
 
 @app.route("/")
 def strona_glowna():
-    return redirect("/login")
+    return redirect("/menu")
+
+
+@app.route("/menu")
+def menu():
+    czy_zalogowany = "login" in session
+    return render_template("menu.html", zalogowany=czy_zalogowany)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -125,6 +131,13 @@ def reset_wynik():
     polaczenie.close()
 
     return jsonify(wartosc=0)
+
+
+@app.route("/logout")
+def logout():
+    # TODO: wyczyść sesję (session.clear())
+    session.clear()
+    return redirect("/menu")
 
 
 if __name__ == "__main__":

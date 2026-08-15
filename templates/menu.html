@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Menu główne</title>
+</head>
+<body>
+    <h1>Menu główne</h1>
+
+    {% if zalogowany %}
+        <p><a href="/gra">Idź do gry</a></p>
+        <p><a href="/logout">Wyloguj się</a></p>
+    {% else %}
+        <p><a href="/login">Zaloguj się</a></p>
+        <p><a href="/register">Zarejestruj się</a></p>
+    {% endif %}
+</body>
+</html>
