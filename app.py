@@ -33,6 +33,22 @@ def menu():
     return render_template("menu.html", zalogowany=czy_zalogowany)
 
 
+@app.route("/ranking")
+def ranking():
+    polaczenie = polacz_z_baza()
+    cursor = polaczenie.cursor()
+
+    # TODO 1: wykonaj zapytanie JOIN pokazane wyżej
+    cursor.execute("SELECT users.login, wyniki.wartosc FROM wyniki JOIN users ON wyniki.user_id = users.id ORDER BY wyniki.wartosc DESC")
+
+    # TODO 2: pobierz WSZYSTKIE wyniki (fetchall, nie fetchone - chcemy całą listę)
+    wyniki_lista = cursor.fetchall()
+
+    polaczenie.close()
+
+    return render_template("ranking.html", wyniki=wyniki_lista)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":

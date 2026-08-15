@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Ranking</title>
+</head>
+<body>
+    <h1>Ranking wszech czasów</h1>
+
+    <ol>
+        {% for login, wynik in wyniki %}
+            <li>{{ login }} — {{ wynik }}</li>
+        {% endfor %}
+    </ol>
+
+    <p><a href="/menu">Powrót do menu</a></p>
+</body>
+</html>
+
