@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gra</title>
+</head>
+<body>
+    <h1 id="licznikTekst">{{ wartosc }}</h1>
+    <button onclick="zwiekszLicznik()">Kliknij mnie</button>
+    <button onclick="resetujLicznik()">Reset</button>
+
+    <script>
+        async function zwiekszLicznik() {
+            const odpowiedz = await fetch("/zwieksz_wynik");
+            const dane = await odpowiedz.json();
+            document.getElementById("licznikTekst").textContent = dane.wartosc;
+        }
+
+        async function resetujLicznik() {
+            const odpowiedz = await fetch("/reset_wynik");
+            const dane = await odpowiedz.json();
+            document.getElementById("licznikTekst").textContent = dane.wartosc;
+        }
+    </script>
+</body>
+</html>
