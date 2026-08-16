@@ -8,15 +8,15 @@
     <h1>Menu główne</h1>
 
     {% if zalogowany %}
-        <p><a href="/gra">Idź do gry</a></p>
-        <p><a href="/logout">Wyloguj się</a></p>
-        <p><a href="/ranking">Ranking wszech czasów</a></p>
-        <p><a href="/sklep">Sklep</a></p>
+        <p><a href="/gra" class="przycisk">Idź do gry</a></p>
+        <p><a href="/logout" class="przycisk">Wyloguj się</a></p>
+        <p><a href="/ranking" class="przycisk">Ranking wszech czasów</a></p>
+        <p><a href="/sklep" class="przycisk">Sklep</a></p>
     {% else %}
-        <p><a href="/login">Zaloguj się</a></p>
-        <p><a href="/register">Zarejestruj się</a></p>
-        <p><a href="/ranking">Ranking wszech czasów</a></p>
-        <p><a href="/sklep">Sklep</a></p>
+        <p><a href="/login" class="przycisk">Zaloguj się</a></p>
+        <p><a href="/register" class="przycisk">Zarejestruj się</a></p>
+        <p><a href="/ranking" class="przycisk">Ranking wszech czasów</a></p>
+        <p><a href="/sklep" class="przycisk">Sklep</a></p>
     {% endif %}
 </body>
 </html>
