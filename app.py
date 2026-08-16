@@ -182,17 +182,16 @@ def wstrzyknij_profil():
     cursor = polaczenie.cursor()
 
     # TODO 1: pobierz wartosc dla tego usera (SELECT wartosc FROM wyniki WHERE user_id = %s)
-    cursor.execute("SELECT COUNT(*) FROM wyniki WHERE wartosc > %s", (moja_wartosc,))
+    cursor.execute("SELECT wartosc FROM wyniki WHERE user_id = %s", (user_id,))
     wynik = cursor.fetchone()
 
     if wynik is None:
         polaczenie.close()
-        return {"moj_login": session["login"], "moja_pozycja": None}
+    return {"moj_login": session["login"], "moja_pozycja": None}
 
     moja_wartosc = wynik[0]
 
-    # TODO 2: policz ile osób ma WYŻSZY wynik (zapytanie z góry, z %s zamiast user_id)
-    cursor.execute("SELECT COUNT(*) FROM wyniki WHERE wartosc > (SELECT wartosc FROM wyniki WHERE user_id = %s)", (moja_wartosc,))
+    cursor.execute("SELECT COUNT(*) FROM wyniki WHERE wartosc > %s", (moja_wartosc,))
     ile_wyzej = cursor.fetchone()[0]
 
     polaczenie.close()
