@@ -206,22 +206,6 @@ def zwieksz_wynik():
 
     return jsonify(wartosc=nowa_wartosc)
 
-@app.route("/reset_wynik")
-def reset_wynik():
-    if "user_id" not in session:
-        return redirect("/login")
-
-    user_id = session["user_id"]
-    polaczenie = polacz_z_baza()
-    cursor = polaczenie.cursor()
-
-    cursor.execute("UPDATE wyniki SET wartosc = %s WHERE user_id = %s", (0, user_id))
-
-    polaczenie.commit()
-    polaczenie.close()
-
-    return jsonify(wartosc=0)
-
 
 @app.route("/logout")
 def logout():

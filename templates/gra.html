@@ -18,12 +18,6 @@
             const dane = await odpowiedz.json();
             document.getElementById("licznikTekst").textContent = dane.wartosc;
         }
-
-        async function resetujLicznik() {
-            const odpowiedz = await fetch("/reset_wynik");
-            const dane = await odpowiedz.json();
-            document.getElementById("licznikTekst").textContent = dane.wartosc;
-        }
     </script>
 </body>
 </html>
