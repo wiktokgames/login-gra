@@ -68,3 +68,13 @@ a.przycisk:hover {
 p {
     margin: 8px 0;
 }
+
+.profil-rog {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #2d2d44;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}

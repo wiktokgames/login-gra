@@ -172,6 +172,36 @@ def kup_ulepszenie():
         polaczenie.close()
         return jsonify(sukces=False, powod="Za mało punktów")
 
+@app.context_processor
+def wstrzyknij_profil():
+    if "user_id" not in session:
+        return {}
+
+    user_id = session["user_id"]
+    polaczenie = polacz_z_baza()
+    cursor = polaczenie.cursor()
+
+    # TODO 1: pobierz wartosc dla tego usera (SELECT wartosc FROM wyniki WHERE user_id = %s)
+    cursor.execute("SELECT wartosc FROM wyniki WHERE user_id = %s", (user_id,))
+    wynik = cursor.fetchone()
+
+    if wynik is None:
+        polaczenie.close()
+        return {"moj_login": session["login"], "moja_pozycja": None}
+
+    moja_wartosc = wynik[0]
+
+    # TODO 2: policz ile osób ma WYŻSZY wynik (zapytanie z góry, z %s zamiast user_id)
+    cursor.execute("SELECT COUNT(*) FROM wyniki WHERE wartosc > (SELECT wartosc FROM wyniki WHERE user_id = %s)", (moja_wartosc,))
+    ile_wyzej = cursor.fetchone()[0]
+
+    polaczenie.close()
+
+    moja_pozycja = ile_wyzej + 1
+
+    return {"moj_login": session["login"], "moja_pozycja": moja_pozycja}
+
+
 
 
 
