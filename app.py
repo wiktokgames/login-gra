@@ -182,7 +182,7 @@ def wstrzyknij_profil():
     cursor = polaczenie.cursor()
 
     # TODO 1: pobierz wartosc dla tego usera (SELECT wartosc FROM wyniki WHERE user_id = %s)
-    cursor.execute("SELECT COUNT(*) FROM wyniki WHERE wartosc > %s", (moja_wartosc,))")
+    cursor.execute("SELECT COUNT(*) FROM wyniki WHERE wartosc > %s", (moja_wartosc,))
     wynik = cursor.fetchone()
 
     if wynik is None:
