@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Sklep</title>
+</head>
+<body>
+    <h1>Sklep</h1>
+
+    <p>Punkty: <span id="punktyTekst">{{ punkty }}</span></p>
+    <p>Mnożnik: <span id="mnoznikTekst">{{ mnoznik }}</span></p>
+    <p>Koszt kolejnego poziomu: <span id="kosztTekst">{{ koszt }}</span></p>
+
+    <button onclick="kupUlepszenie()">Kup ulepszenie</button>
+    <p id="komunikat"></p>
+
+    <p><a href="/menu">Powrót do menu</a></p>
+
+    <script>
+        async function kupUlepszenie() {
+            const odpowiedz = await fetch("/kup_ulepszenie");
+            const dane = await odpowiedz.json();
+
+            if (dane.sukces) {
+                document.getElementById("punktyTekst").textContent = dane.wartosc;
+                document.getElementById("mnoznikTekst").textContent = dane.mnoznik;
+                document.getElementById("kosztTekst").textContent = dane.koszt;
+                document.getElementById("komunikat").textContent = "Kupiono!";
+            } else {
+                document.getElementById("komunikat").textContent = dane.powod;
+            }
+        }
+    </script>
+</body>
+</html>

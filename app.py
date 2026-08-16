@@ -18,6 +18,9 @@ polaczenie_startowe.cursor().execute(
 polaczenie_startowe.cursor().execute(
     "CREATE TABLE IF NOT EXISTS wyniki (id SERIAL PRIMARY KEY, user_id INTEGER, wartosc INTEGER)"
 )
+polaczenie_startowe.cursor().execute(
+    "ALTER TABLE wyniki ADD COLUMN IF NOT EXISTS mnoznik INTEGER DEFAULT 1"
+)
 polaczenie_startowe.commit()
 polaczenie_startowe.close()
 
@@ -106,6 +109,71 @@ def gra():
 
     return render_template("gra.html", wartosc=aktualna_wartosc)
 
+@app.route("/sklep")
+def sklep():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    user_id = session["user_id"]
+    polaczenie = polacz_z_baza()
+    cursor = polaczenie.cursor()
+
+    cursor.execute("SELECT wartosc, mnoznik FROM wyniki WHERE user_id = %s", (user_id,))
+    wynik = cursor.fetchone()
+    polaczenie.close()
+
+    if wynik is None:
+        punkty, mnoznik = 0, 1
+    else:
+        punkty, mnoznik = wynik
+
+    koszt = mnoznik * 10
+
+    return render_template("sklep.html", punkty=punkty, mnoznik=mnoznik, koszt=koszt)
+
+
+
+@app.route("/kup_ulepszenie")
+def kup_ulepszenie():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    user_id = session["user_id"]
+    polaczenie = polacz_z_baza()
+    cursor = polaczenie.cursor()
+
+    # TODO 1: pobierz aktualne "wartosc" i "mnoznik" dla tego usera
+    # (dokładnie ten sam wzorzec co w sklep() i zwieksz_wynik())
+    cursor.execute("SELECT wartosc, mnoznik FROM wyniki WHERE user_id = %s", (user_id,))
+    wynik = cursor.fetchone()
+
+    if wynik is None:
+        polaczenie.close()
+        return jsonify(sukces=False, powod="Brak wyniku")
+
+    # TODO 2: rozpakuj wynik na "wartosc" i "mnoznik"
+    wartosc, mnoznik = wynik
+
+    koszt = mnoznik * 10
+
+    if wartosc >= koszt:
+        # TODO 3: oblicz nową wartość (wartosc - koszt) i nowy mnożnik (mnoznik + 1)
+        nowy_mnoznik = mnoznik + 1
+        nowa_wartosc = wartosc - koszt
+
+        # TODO 4: zaktualizuj oba pola naraz w bazie
+        # UPDATE wyniki SET wartosc = %s, mnoznik = %s WHERE user_id = %s
+        cursor.execute("UPDATE wyniki SET wartosc = %s, mnoznik = %s WHERE user_id = %s", (nowa_wartosc, nowy_mnoznik, user_id))
+        polaczenie.commit()
+        polaczenie.close()
+
+        return jsonify(sukces=True, wartosc=nowa_wartosc, mnoznik=nowy_mnoznik, koszt=nowy_mnoznik * 10)
+    else:
+        polaczenie.close()
+        return jsonify(sukces=False, powod="Za mało punktów")
+
+
+
 
 @app.route("/zwieksz_wynik")
 def zwieksz_wynik():
@@ -116,21 +184,27 @@ def zwieksz_wynik():
     polaczenie = polacz_z_baza()
     cursor = polaczenie.cursor()
 
-    cursor.execute("SELECT wartosc FROM wyniki WHERE user_id = %s", (user_id,))
+    # TODO 1: pobierz teraz DWIE kolumny: "wartosc" i "mnoznik"
+    # (spójrz jak to zrobiłeś w funkcji sklep() - ten sam wzorzec)
+    cursor.execute("SELECT wartosc, mnoznik FROM wyniki WHERE user_id = %s", (user_id,))
     wynik = cursor.fetchone()
 
     if wynik is None:
         cursor.execute("INSERT INTO wyniki (user_id, wartosc) VALUES (%s, %s)", (user_id, 1))
         nowa_wartosc = 1
     else:
-        nowa_wartosc = wynik[0] + 1
+        # TODO 2: rozpakuj "wynik" na dwie zmienne: wartosc i mnoznik
+        # (spójrz jak to zrobiłeś w sklep(): "punkty, mnoznik = wynik")
+        wartosc, mnoznik = wynik
+        # TODO 3: nowa_wartosc to stara wartosc + mnoznik (zamiast zawsze + 1)
+        nowa_wartosc = wartosc + mnoznik
+
         cursor.execute("UPDATE wyniki SET wartosc = %s WHERE user_id = %s", (nowa_wartosc, user_id))
 
     polaczenie.commit()
     polaczenie.close()
 
     return jsonify(wartosc=nowa_wartosc)
-
 
 @app.route("/reset_wynik")
 def reset_wynik():
