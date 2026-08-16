@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <p><a href="/sklep" class="przycisk">Sklep</a></p>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Gra</title>
 </head>
@@ -9,6 +8,7 @@
     <h1 id="licznikTekst">{{ wartosc }}</h1>
     <button onclick="zwiekszLicznik()">Kliknij mnie</button>
 
+    <p><a href="/sklep" class="przycisk">Sklep</a></p>
     <p><a href="/menu" class="przycisk">Powrót do menu</a></p>
 
     <script>
